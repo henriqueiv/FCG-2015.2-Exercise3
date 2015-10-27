@@ -353,58 +353,110 @@ void renderScene() {
     renderFloor();
 }
 
-float runAccelerationFactor = 1.5f;
-float crawlingFactor = 0.025f;
-float crawlingHeight = 0.125f;
 float initialY = 0.4f;
-float jumpUpFactor = 0.025f;
-float jumpDownFactor = 0.035f;
-float jumpHeight = 0.8f;
 
+float jumpUpFactor = 0.025f;
+float jumpDownFactor = 0.025f;
+float jumpHeight = 0.8f;
+bool isJumping = false;
 void jump(){
-    // MARK: Jump
-    // Can't jump while crawling but if jumpped while running then crawl need to go down
-    // Inside up if due to the order of the switch that prevent this code to be executed
-    if (!cPressed) {
-        if (spacePressed) {
-            posY += jumpUpFactor;
-            if (posY > jumpHeight) {
-                spacePressed = false;
+    if (spacePressed) {
+        isJumping = true;
+        posY += jumpUpFactor;
+        if (posY > jumpHeight) {
+            spacePressed = false;
+        }
+    }else{
+        if (isJumping){
+            posY -= jumpDownFactor;
+            if (posY < initialY) {
+                posY = initialY;
+                isJumping = false;
             }
         }
     }
-    if (!spacePressed) {
-        posY -= jumpDownFactor;
-        if (posY < initialY) {
-            posY = initialY;
-        }
-    }
 }
-void updateState() {
-    if (leftPressed) {
-        roty -= 4.0f;
-    }
-    
-    if (rightPressed) {
-        roty += 4.0f;
-    }
-    
-    if (upPressed) {
-        jump();
-        // MARK: Crawling
-        if (cPressed) {
+
+
+float runAccelerationFactor = 1.5f;
+float crawlingFactor = 0.025f;
+float crawlingHeight = 0.125f;
+bool isCrawling = false;
+void crawl(){
+    if (cPressed) {
+        if (isJumping) {
+            
+        }else{
+            isCrawling = true;
             posY -= crawlingFactor;
             if (posY < crawlingHeight) {
                 posY = crawlingHeight;
             }
-        }else{
+        }
+    }else{
+        if (isCrawling){
             posY += crawlingFactor;
             if (posY > initialY) {
                 posY = initialY;
+                isCrawling = false;
             }
         }
+    }
+}
+
+void rotateLeft(){
+    if (leftPressed) {
+        roty -= 4.0f;
+    }
+}
+
+void rotateRight(){
+    if (rightPressed) {
+        roty += 4.0f;
+    }
+}
+
+void goForward(){
+    if (upPressed) {
+        //        if (spacePressed) {
+        //            printf("miau");
+        //        }
+        //        if (!spacePressed) {
+        //            if (finishedJump){
+        //                posY += 0.025f;
+        //                if (posY > initialY) {
+        //                    posY = initialY;
+        //                }
+        //            }
+        //        }
         
+        speedX = 0.025 * sin(roty*PI/180);
+        speedZ = -0.025 * cos(roty*PI/180);
         
+        if (rPressed) {
+            speedX *= runAccelerationFactor;
+            speedZ *= runAccelerationFactor;
+        }
+        posX += speedX;
+        posZ += speedZ;
+        
+//    } else {
+//        if(!downPressed){
+//            // parou de andar, para com o efeito de "sobe e desce"
+//            headPosAux = fmod(headPosAux, 90) - 1 * headPosAux / 90;
+//            headPosAux -= 4.0f;
+//            if (headPosAux < 0.0f) {
+//                headPosAux = 0.0f;
+//            }
+//        }
+    }
+    
+}
+
+void goBackwards(){
+    if (downPressed) {
+        
+        // efeito de "sobe e desce" ao andar
         headPosAux += 7.0f;
         if (headPosAux > 180.0f) {
             headPosAux = 0.0f;
@@ -416,12 +468,12 @@ void updateState() {
             speedX *= runAccelerationFactor;
             speedZ *= runAccelerationFactor;
         }
-        posX += speedX;
-        posZ += speedZ;
+        
+        posX -= speedX;
+        posZ -= speedZ;
         
     } else {
-        jump();
-        if(!downPressed){
+        if(!upPressed){
             // parou de andar, para com o efeito de "sobe e desce"
             headPosAux = fmod(headPosAux, 90) - 1 * headPosAux / 90;
             headPosAux -= 4.0f;
@@ -430,35 +482,37 @@ void updateState() {
             }
         }
     }
-    
-    //    if (downPressed) {
-    //
-    //        // efeito de "sobe e desce" ao andar
-    //        headPosAux += 7.0f;
-    //        if (headPosAux > 180.0f) {
-    //            headPosAux = 0.0f;
-    //        }
-    //
-    //        speedX = 0.025 * sin(roty*PI/180);
-    //        speedZ = -0.025 * cos(roty*PI/180);
-    //        if (rPressed) {
-    //            speedX *= runAccelerationFactor;
-    //            speedZ *= runAccelerationFactor;
-    //        }
-    //
-    //        posX -= speedX;
-    //        posZ -= speedZ;
-    //
-    //    } else {
-    //        if(!upPressed){
-    //            // parou de andar, para com o efeito de "sobe e desce"
-    //            headPosAux = fmod(headPosAux, 90) - 1 * headPosAux / 90;
-    //            headPosAux -= 4.0f;
-    //            if (headPosAux < 0.0f) {
-    //                headPosAux = 0.0f;
-    //            }
-    //        }
-    //    }
+}
+
+float moveHeadHeightVariation = 1.0f;
+bool initialYisSet = false;
+float initialYMoveHead = 0.0f;
+float moveHeadFactor = 0.025f;
+void moveHead(){
+    if ((upPressed || downPressed) && (!isJumping) ){
+        if (headPosAux == 0.0f){
+            headPosAux = fmod(headPosAux, 90) - 1 * headPosAux / 90;
+            headPosAux -= 4.0f;
+            if (headPosAux < 0.0f) {
+//                headPosAux = 0.0f;
+            }
+        }else{
+            headPosAux += 7.0f;
+            if (headPosAux > 180.0f) {
+                headPosAux = 0.0f;
+            }
+        }
+    }
+}
+
+void updateState() {
+    rotateLeft();
+    rotateRight();
+    jump();
+    crawl();
+    goForward();
+    //    goBackwards();
+    moveHead();
 }
 
 /**
@@ -508,6 +562,7 @@ void onMouseButton(int button, int state, int x, int y) {
 void onMouseMove(int x, int y) {
     mouseLastX = x;
     mouseLastY = y;
+//    printf("%d, %d\n", x, y);
     
     glutPostRedisplay();
 }
@@ -530,10 +585,10 @@ void onKeyDown(unsigned char key, int x, int y) {
             break;
             
         case 119: //w
-            if (!upPressed) {
-                //				alSourcePlay(source[0]);
-                //PlaySound((LPCSTR) "..\\..\\Footsteps.wav", NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
-            }
+            //            if (!upPressed) {
+            //				alSourcePlay(source[0]);
+            //PlaySound((LPCSTR) "..\\..\\Footsteps.wav", NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+            //            }
             upPressed = true;
             break;
             
@@ -569,16 +624,16 @@ void onKeyDown(unsigned char key, int x, int y) {
  */
 void onKeyUp(unsigned char key, int x, int y) {
     switch (key) {
-        case 32: //space
-            //            This will be controlled on the jump function to create smothness
+        case 32:
+            // the control to release space will be in the jump function
             //            spacePressed = false;
             break;
             
         case 119: //w
-            if (upPressed) {
-                //				alSourceStop(source[0]);
-                //PlaySound(NULL, 0, 0);
-            }
+            //            if (upPressed) {
+            //				alSourceStop(source[0]);
+            //PlaySound(NULL, 0, 0);
+            //            }
             upPressed = false;
             break;
             
