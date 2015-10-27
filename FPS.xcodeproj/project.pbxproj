@@ -27,6 +27,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6204E40F1BDFFEAC00345958 /* FuncionalidadesExtras.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = FuncionalidadesExtras.txt; sourceTree = SOURCE_ROOT; };
 		E932F6791B8CA74700A74607 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		E932F67A1B8CA74700A74607 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		E9A245A51BDE7B7F0064D677 /* bitmap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bitmap.c; sourceTree = "<group>"; };
@@ -82,6 +83,7 @@
 		E9E059511BDE7A5500959F4D /* FPS */ = {
 			isa = PBXGroup;
 			children = (
+				6204E40F1BDFFEAC00345958 /* FuncionalidadesExtras.txt */,
 				E9A245A51BDE7B7F0064D677 /* bitmap.c */,
 				E9A245A61BDE7B7F0064D677 /* bitmap.h */,
 				E9E059521BDE7A5500959F4D /* main.cpp */,

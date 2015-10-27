@@ -1,0 +1,1 @@
+Adicionada feature de andar para trás com a tecla 's';
