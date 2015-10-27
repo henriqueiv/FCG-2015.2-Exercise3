@@ -360,7 +360,7 @@ float jumpDownFactor = 0.025f;
 float jumpHeight = 0.8f;
 bool isJumping = false;
 void jump(){
-    if (spacePressed) {
+    if (spacePressed && !isJumping) {
         isJumping = true;
         posY += jumpUpFactor;
         if (posY > jumpHeight) {
@@ -418,18 +418,6 @@ void rotateRight(){
 
 void goForward(){
     if (upPressed) {
-        //        if (spacePressed) {
-        //            printf("miau");
-        //        }
-        //        if (!spacePressed) {
-        //            if (finishedJump){
-        //                posY += 0.025f;
-        //                if (posY > initialY) {
-        //                    posY = initialY;
-        //                }
-        //            }
-        //        }
-        
         speedX = 0.025 * sin(roty*PI/180);
         speedZ = -0.025 * cos(roty*PI/180);
         
@@ -439,29 +427,11 @@ void goForward(){
         }
         posX += speedX;
         posZ += speedZ;
-        
-//    } else {
-//        if(!downPressed){
-//            // parou de andar, para com o efeito de "sobe e desce"
-//            headPosAux = fmod(headPosAux, 90) - 1 * headPosAux / 90;
-//            headPosAux -= 4.0f;
-//            if (headPosAux < 0.0f) {
-//                headPosAux = 0.0f;
-//            }
-//        }
     }
-    
 }
 
 void goBackwards(){
     if (downPressed) {
-        
-        // efeito de "sobe e desce" ao andar
-        headPosAux += 7.0f;
-        if (headPosAux > 180.0f) {
-            headPosAux = 0.0f;
-        }
-        
         speedX = 0.025 * sin(roty*PI/180);
         speedZ = -0.025 * cos(roty*PI/180);
         if (rPressed) {
@@ -471,16 +441,6 @@ void goBackwards(){
         
         posX -= speedX;
         posZ -= speedZ;
-        
-    } else {
-        if(!upPressed){
-            // parou de andar, para com o efeito de "sobe e desce"
-            headPosAux = fmod(headPosAux, 90) - 1 * headPosAux / 90;
-            headPosAux -= 4.0f;
-            if (headPosAux < 0.0f) {
-                headPosAux = 0.0f;
-            }
-        }
     }
 }
 
@@ -493,9 +453,10 @@ void moveHead(){
         if (headPosAux == 0.0f){
             headPosAux = fmod(headPosAux, 90) - 1 * headPosAux / 90;
             headPosAux -= 4.0f;
-            if (headPosAux < 0.0f) {
-//                headPosAux = 0.0f;
-            }
+            //            This controle is in the outside if to make it 'generic'
+            //            if (headPosAux < 0.0f) {
+            //                headPosAux = 0.0f;
+            //            }
         }else{
             headPosAux += 7.0f;
             if (headPosAux > 180.0f) {
@@ -511,7 +472,7 @@ void updateState() {
     jump();
     crawl();
     goForward();
-    //    goBackwards();
+    goBackwards();
     moveHead();
 }
 
@@ -562,7 +523,7 @@ void onMouseButton(int button, int state, int x, int y) {
 void onMouseMove(int x, int y) {
     mouseLastX = x;
     mouseLastY = y;
-//    printf("%d, %d\n", x, y);
+    //    printf("%d, %d\n", x, y);
     
     glutPostRedisplay();
 }
