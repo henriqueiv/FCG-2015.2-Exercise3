@@ -1,1 +1,6 @@
 Adicionada feature de andar para trás com a tecla 's';
+Removido som pois a API não funcionou no Mac OS El Capitan;
+Adicionada feature do mouse olhar para cima e para baixo além dos lados;
+Controle de pulo para não ser possível "voar";
+Regras para controle de execução de ações. ex.: nao movimentar a cabeça enquanto pula.
+Mouse travado para movimentação somente quando dentro da tela.

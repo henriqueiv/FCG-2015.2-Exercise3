@@ -174,10 +174,9 @@ void mainInit() {
     
     initTexture();
     
-    printf("w - andar \n");
-    printf("a - esquerda \n");
-    printf("d - direita \n");
-    
+    printf("w - go forward \n");
+    printf("s - go backward \n");
+    printf("mouse - look around \n");
 }
 
 /**
@@ -247,16 +246,14 @@ void mainInit() {
 /**
  Initialize the texture
  */
-void initTexture(void)
-{
-    printf ("\nLoading texture..\n");
+void initTexture(void){
+    printf ("Loading texture..\n");
     // Load a texture object (256x256 true color)
     bits = LoadDIBitmap("/Users/valcanaia/Documents/UFRGS/2015-2/FCG/Pratica/Exercise_x3/FPS/res/tiledbronze.bmp", &info);
     if (bits == (GLubyte *)0) {
         printf ("Error loading texture!\n\n");
         return;
     }
-    
     
     // Figure out the type of texture
     if (info->bmiHeader.biHeight == 1)
@@ -289,8 +286,8 @@ void initTexture(void)
     glTexImage2D(type, 0, 4, info->bmiHeader.biWidth, info->bmiHeader.biHeight,
                  0, GL_RGBA, GL_UNSIGNED_BYTE, rgba );
     
-    printf("Textura %d\n", texture);
-    printf("Textures ok.\n\n", texture);
+    //    printf("Textura %d\n", texture);
+    //    printf("Textures ok.\n\n", texture);
 }
 
 void renderFloor() {
@@ -359,34 +356,40 @@ float jumpUpFactor = 0.025f;
 float jumpDownFactor = 0.025f;
 float jumpHeight = 0.8f;
 bool isJumping = false;
+bool isJumpingUp = false;
+bool isJumpingDown = false;
 void jump(){
     if (spacePressed && !isJumping) {
         isJumping = true;
+        isJumpingUp = true;
+        isJumpingDown = false;
+    }
+    
+    if (isJumpingUp) {
         posY += jumpUpFactor;
         if (posY > jumpHeight) {
-            spacePressed = false;
+            posY = jumpHeight;
+            isJumpingUp = false;
+            isJumpingDown = true;
         }
-    }else{
-        if (isJumping){
-            posY -= jumpDownFactor;
-            if (posY < initialY) {
-                posY = initialY;
-                isJumping = false;
-            }
+    }
+    
+    if (isJumpingDown) {
+        posY -= jumpDownFactor;
+        if (posY < initialY) {
+            posY = initialY;
+            isJumping = false;
+            isJumpingDown = false;
         }
     }
 }
 
-
-float runAccelerationFactor = 1.5f;
 float crawlingFactor = 0.025f;
 float crawlingHeight = 0.125f;
 bool isCrawling = false;
 void crawl(){
     if (cPressed) {
-        if (isJumping) {
-            
-        }else{
+        if (!isJumping) {
             isCrawling = true;
             posY -= crawlingFactor;
             if (posY < crawlingHeight) {
@@ -416,6 +419,7 @@ void rotateRight(){
     }
 }
 
+float runAccelerationFactor = 1.5f;
 void goForward(){
     if (upPressed) {
         speedX = 0.025 * sin(roty*PI/180);
@@ -445,7 +449,6 @@ void goBackwards(){
 }
 
 float moveHeadHeightVariation = 1.0f;
-bool initialYisSet = false;
 float initialYMoveHead = 0.0f;
 float moveHeadFactor = 0.025f;
 void moveHead(){
@@ -466,9 +469,53 @@ void moveHead(){
     }
 }
 
+float mouseOldX = 0;
+float mouseOldY = 0;
+float mouseMoveFactor = 1.0f;
+void moveCamera(){
+    // Deprecated in OS X 10.9
+    windowXPos = glutGet(GLUT_WINDOW_X);
+    windowYPos = glutGet(GLUT_WINDOW_Y);
+    windowWidth = glutGet(GLUT_WINDOW_WIDTH);
+    windowHeight = glutGet(GLUT_WINDOW_HEIGHT);
+    
+    // restrain mouse to the window
+    bool isMouseInsideWindow = (mouseLastY > 0) && (mouseLastY < windowHeight) && (mouseLastX > 0) && (mouseLastX < windowWidth);
+    if (isMouseInsideWindow){
+        float mouseMoveX = (mouseLastX - mouseOldX);
+        float mouseMoveY = (mouseLastY - mouseOldY);
+        
+        if (mouseMoveX > 0){
+            // Right
+            roty += mouseMoveFactor;
+        }else{
+            // Left
+            if (mouseMoveX < 0){
+                roty -= mouseMoveFactor;
+            }else{
+                // no move
+            }
+        }
+        
+        if (mouseMoveY > 0){
+            // Up
+            rotx += mouseMoveFactor;
+        }else{
+            // Down
+            if (mouseMoveY < 0){
+                rotx -= mouseMoveFactor;
+            }else{
+                // no move
+            }
+        }
+        
+        mouseOldX = mouseLastX;
+        mouseOldY = mouseLastY;
+    }
+}
+
 void updateState() {
-    rotateLeft();
-    rotateRight();
+    moveCamera();
     jump();
     crawl();
     goForward();
@@ -587,7 +634,7 @@ void onKeyUp(unsigned char key, int x, int y) {
     switch (key) {
         case 32:
             // the control to release space will be in the jump function
-            //            spacePressed = false;
+            spacePressed = false;
             break;
             
         case 119: //w
